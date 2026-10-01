@@ -1,0 +1,17 @@
+services:
+  query_executor:
+    build: .
+    container_name: query_executor
+    ports:
+      - ${QUERY_EXECUTOR_LOCAL_PORT}:8091
+    env_file:
+      - path: .env
+        required: true
+    networks:
+      - default
+      - cohort360-network
+
+networks:
+  cohort360-network:
+    name: cohort360-network
+    external: true

@@ -1,0 +1,143 @@
+# Stack dev : Postgres + Redis + image Dockerfile (nginx :8080 → gunicorn, daphne, celery).
+# Usage : voir starter-pack/README.md (§ Environnement local) et starter-pack/FAKE_DATA.md (§ 4.3).
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: pg-db
+    environment:
+      POSTGRES_USER: cohort_dev
+      POSTGRES_PASSWORD: cohort_dev_pwd
+      POSTGRES_DB: cohort_db_qualif_copy
+    ports:
+      - "5433:5432"
+    volumes:
+      - cohort360_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cohort_dev -d cohort_db"]
+      interval: 3s
+      timeout: 5s
+      retries: 15
+    networks:
+      - default
+
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 3s
+      timeout: 5s
+      retries: 5
+    ports:
+      - "6380:6379"
+    networks:
+      - default
+      - cohort360-network
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    entrypoint: []
+    container_name: backend
+    command:
+      - bash
+      - -c
+      - |
+        source "$$VIRTUAL_ENV/bin/activate"
+        python manage.py migrate --database=default
+        python manage.py runserver 0.0.0.0:8000
+    env_file:
+      - path: .env
+        required: true
+    environment:
+      DB_HOST: postgres
+      DB_PORT: "5432"
+      PERIMETERS_SOURCE_DB_NAME: cohort_db
+      PERIMETERS_SOURCE_DB_HOST: postgres
+      PERIMETERS_SOURCE_DB_PORT: "5432"
+      CELERY_BROKER_URL: redis://redis:6379/0
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/home/cohort360-backend/app
+      - /home/cohort360-backend/app/.venv
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - default
+      - cohort360-network
+
+  celery:
+    build:
+      context: .
+    entrypoint: []
+    command:
+      - bash
+      - -c
+      - |
+        source "$$VIRTUAL_ENV/bin/activate"
+        celery -A admin_cohort worker --loglevel=INFO
+    env_file:
+      - path: .env
+        required: true
+    container_name: celery
+    depends_on:
+      - postgres
+      - redis
+      - backend
+    volumes:
+      - .:/home/cohort360-backend/app
+      - /home/cohort360-backend/app/.venv
+    networks:
+      - default
+      - cohort360-network
+
+  daphne:
+    build:
+      context: .
+
+    container_name: daphne
+
+    entrypoint: []
+
+    command:
+      - daphne
+      - -b
+      - 0.0.0.0
+      - -p
+      - "8005"
+      - admin_cohort.asgi:application
+
+    env_file:
+      - path: .env
+        required: true
+
+    ports:
+      - "8005:8005"
+
+    volumes:
+      - .:/home/cohort360-backend/app
+      - /home/cohort360-backend/app/.venv
+
+    depends_on:
+      - postgres
+      - redis
+      - backend
+
+    networks:
+      - default
+      - cohort360-network
+
+volumes:
+  cohort360_pgdata:
+
+networks:
+  cohort360-network:
+    name: cohort360-network
+    driver: bridge

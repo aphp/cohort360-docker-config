@@ -1,0 +1,25 @@
+services:
+  administration_portal:
+    build: .
+
+    container_name: administration_portal
+
+    ports:
+      - "${LOCAL_PORT}:3000"
+
+    env_file:
+      - .env
+
+    volumes:
+      - .:/app
+      - /app/node_modules
+
+    command: npm start -- --host 0.0.0.0
+
+    networks:
+      - cohort360-network
+
+networks:
+  cohort360-network:
+    name: cohort360-network
+    external: true
