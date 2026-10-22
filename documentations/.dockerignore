@@ -1,0 +1,8 @@
+venv
+.venv
+public
+site
+temp_dir
+.idea
+__pycache__
+.git
