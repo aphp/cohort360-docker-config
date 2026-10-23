@@ -8,7 +8,7 @@ Le dépôt contient, pour chaque composant, un `Dockerfile`, un `docker-compose.
 
 | Dossier | Dépôt cible | Guide |
 | --- | --- | --- |
-| `backend/` | `Cohort360-Back-end` (Django, Postgres, Redis, Celery) | [INSTALL_FRONTEND_DOCKER.md](backend/INSTALL_FRONTEND_DOCKER.md) |
+| `backend/` | `Cohort360-Back-end` (Django, Postgres, Redis, Celery) | [INSTALL_BACKEND_DOCKER.md](backend/INSTALL_BACKEND_DOCKER.md) |
 | `front/` | `Cohort360-FrontEnd` (React + Vite) | [INSTALL_FRONTEND_DOCKER.md](front/INSTALL_FRONTEND_DOCKER.md) |
 | `query-executor/` | `Cohort360-QueryExecutor` (Scala + Spark) | [INSTALL_QUERYEXECUTOR_DOCKER.md](query-executor/INSTALL_QUERYEXECUTOR_DOCKER.md) |
 | `administration-portail/` | `Cohort360-AdministrationPortal` (React + Vite) | [INSTALL_ADMINISTRATIONPORTAL_DOCKER.md](administration-portail/INSTALL_ADMINISTRATIONPORTAL_DOCKER.md) |
