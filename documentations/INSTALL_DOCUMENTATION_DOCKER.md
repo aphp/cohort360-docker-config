@@ -144,60 +144,10 @@ Les lignes `INFO` du build (pages absentes du menu, liens absolus `/design-et-pr
 
 ## Fichiers Docker du dépôt
 
-À la racine de `documentation/`, pour référence ou pour les recréer.
+À la racine de `documentation/`, coller les 3 fichier docker.
 
-`Dockerfile` :
-
-```dockerfile
-FROM python:3.12-slim
-
-# git : requis par le plugin git-revision-date-localized (dates de modification)
-# safe.directory : git accepte le dépôt monté, quel que soit son propriétaire
-RUN apt-get update \
- && apt-get install -y --no-install-recommends git \
- && rm -rf /var/lib/apt/lists/* \
- && git config --system --add safe.directory '*'
-
-WORKDIR /docs
-
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
-
-# PYTHONPATH : nécessaire pour l'extension docs/scripts/cards.py
-ENV PYTHONPATH=/docs \
-    DISABLE_MKDOCS_2_WARNING=true \
-    HOME=/tmp
-
-EXPOSE 8000
-
-CMD ["mkdocs", "serve", "-a", "0.0.0.0:8000"]
-```
-
-`docker-compose.dev.yml` :
-
-```yaml
-services:
-  docs:
-    build: .
-    image: cohort360-documentation:local
-    container_name: cohort360-docs
-    ports:
-      - "8001:8000"
-    volumes:
-      - .:/docs
-```
-
-`.dockerignore` :
-
-```
-venv
-.venv
-public
-site
-temp_dir
-.idea
-__pycache__
-.git
-```
+- `Dockerfile`
+- `docker-compose.dev.yml`
+- `.dockerignore`
 
 Dans le conteneur, MkDocs doit écouter sur `0.0.0.0` et non sur `127.0.0.1` : sinon il n'est pas joignable depuis la machine malgré le mapping de port.
