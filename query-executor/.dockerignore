@@ -1,0 +1,32 @@
+# Secrets (injectés au runtime via env_file, jamais dans le contexte de build)
+.env
+*.env
+solr_auth*
+
+# Sorties de build (recompilées dans l'image par ./mvnw)
+target
+build
+postgresql.jar
+
+# Données et logs locaux
+log
+spark-warehouse
+metastore_db
+spark-postgres-tmp
+derby.log
+tmp
+temp
+
+# VCS, IDE, outillage local
+.git
+.github
+.idea
+*.iml
+.settings
+.classpath
+.project
+.local
+docker-compose*.yml
+Dockerfile
+.dockerignore
+CLAUDE.md
