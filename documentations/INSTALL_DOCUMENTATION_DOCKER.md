@@ -144,7 +144,7 @@ Les lignes `INFO` du build (pages absentes du menu, liens absolus `/design-et-pr
 
 ## Fichiers Docker du dépôt
 
-À la racine de `documentation/`, coller les 3 fichier docker.
+À la racine de `documentation/`, coller les trois fichiers docker.
 
 - `Dockerfile`
 - `docker-compose.dev.yml`
