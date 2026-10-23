@@ -1,9 +1,11 @@
 FROM python:3.12-slim
 
 # git : requis par le plugin git-revision-date-localized (dates de modification)
+# safe.directory : git accepte le dépôt monté, quel que soit son propriétaire
 RUN apt-get update \
  && apt-get install -y --no-install-recommends git \
- && rm -rf /var/lib/apt/lists/*
+ && rm -rf /var/lib/apt/lists/* \
+ && git config --system --add safe.directory '*'
 
 WORKDIR /docs
 

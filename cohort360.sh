@@ -15,8 +15,6 @@ set -uo pipefail
 # Dossier racine du workspace (là où se trouve ce script)
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 COMPOSE_FILE="docker-compose.dev.yml"
-# UID/GID de l'hôte pour le conteneur de la documentation (fichiers générés non-root)
-export DOCS_UID="$(id -u)" DOCS_GID="$(id -g)"
 # Temps max (en secondes) d'attente de la fin du redémarrage
 RESTART_TIMEOUT=180
 

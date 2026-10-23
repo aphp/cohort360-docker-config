@@ -173,8 +173,7 @@ down-administrationportal:
 
 # --- DOCUMENTATION (MkDocs) --------------------------------------------------
 # Site sur http://127.0.0.1:8001/design-et-produit/ipa/documentation/
-# Le conteneur tourne avec l'UID/GID de l'hôte (fichiers générés non-root)
-DOCS_COMPOSE = DOCS_UID=$$(id -u) DOCS_GID=$$(id -g) $(DOCKER_COMPOSE) -f $(DOCKER_FILE)
+DOCS_COMPOSE = $(DOCKER_COMPOSE) -f $(DOCKER_FILE)
 
 # Rebuild l'image de la documentation sans cache (après un changement de requirements.txt)
 build-documentation:

@@ -3,8 +3,6 @@ services:
     build: .
     image: cohort360-documentation:local
     container_name: cohort360-docs
-    # Tourne avec l'UID de l'hôte : fichiers générés non-root, et git accepte le .git monté
-    user: "${DOCS_UID:-1000}:${DOCS_GID:-1000}"
     ports:
       - "8001:8000"
     volumes:
