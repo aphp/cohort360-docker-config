@@ -53,7 +53,7 @@ Le `docker-compose.dev.yml` démarre 5 conteneurs :
 
 | Service | Conteneur | Rôle | Port machine → conteneur |
 | --- | --- | --- | --- |
-| `postgres` | `pg-db` | Base PostgreSQL 16 | `5433` → `5432` |
+| `postgres` | `postgres` | Base PostgreSQL 16 | `5433` → `5432` |
 | `redis` | `redis` | Broker Celery, cache, canaux WebSocket | `6380` → `6379` |
 | `backend` | `backend` | `migrate` puis `runserver 0.0.0.0:8000` | `8000` → `8000` |
 | `celery` | `celery` | Worker Celery (tâches asynchrones) | aucun |
@@ -75,15 +75,33 @@ cd <workspace>/Cohort360-Back-end
 cp .local/env.docker.example .env
 ```
 
+Le `.env` est la seule source de configuration : `backend`, `celery` et `daphne` le lisent tel quel, et le conteneur `postgres` y prend aussi son utilisateur, son mot de passe et le nom de la base à créer (`DB_USER`, `DB_PASSWORD`, `DB_NAME`).
+
+Vérifier que le `.env` contient ces valeurs :
+
+```env
+DB_NAME=cohort_db
+DB_USER=cohort_dev
+DB_PASSWORD=cohort_dev_pwd
+DB_HOST=postgres
+DB_PORT=5432
+PERIMETERS_SOURCE_DB_NAME=cohort_db
+PERIMETERS_SOURCE_DB_USER=cohort_dev
+PERIMETERS_SOURCE_DB_PASSWORD=cohort_dev_pwd
+PERIMETERS_SOURCE_DB_HOST=postgres
+PERIMETERS_SOURCE_DB_PORT=5432
+CELERY_BROKER_URL=redis://redis:6379/0
+```
+
 Puis vérifier au minimum ces variables :
 
 | Variable | Rôle | Valeur en Docker |
 | --- | --- | --- |
 | `DJANGO_SECRET_KEY` | Clé secrète Django | une chaîne quelconque en dev |
-| `DB_NAME` | Base utilisée par Django | une base qui **existe** dans `pg-db` (voir ci-dessous) |
-| `DB_USER` / `DB_PASSWORD` | Identifiants PostgreSQL | ceux de `POSTGRES_USER` / `POSTGRES_PASSWORD` du compose |
+| `DB_NAME` | Base utilisée par Django, créée par `postgres` au premier démarrage | `cohort_db` |
+| `DB_USER` / `DB_PASSWORD` | Identifiants PostgreSQL, créés par `postgres` au premier démarrage | `cohort_dev` / `cohort_dev_pwd` |
 | `DB_HOST` / `DB_PORT` | Hôte PostgreSQL | `postgres` / `5432` |
-| `PERIMETERS_SOURCE_DB_*` | Base source des périmètres | même base et mêmes identifiants que `DB_*`, hôte `postgres` |
+| `PERIMETERS_SOURCE_DB_*` | Base source des périmètres | mêmes valeurs que `DB_*` |
 | `CELERY_BROKER_URL` | Redis (Celery, cache, WebSockets) | `redis://redis:6379/0` |
 | `PERIMETER_TYPES` | Types de périmètres (obligatoire) | déjà rempli dans l'exemple |
 | `FHIR_URL` | API FHIR | `http://host.docker.internal:<port>/fhir` |
@@ -93,8 +111,8 @@ Puis vérifier au minimum ces variables :
 
 Points d'attention :
 
-- **Ajouter `DB_HOST`, `PERIMETERS_SOURCE_DB_HOST` et `CELERY_BROKER_URL` dans le `.env`.** Le compose ne les surcharge que pour le conteneur `backend` ; `celery` et `daphne` lisent uniquement le `.env`. Sans eux, ils cherchent PostgreSQL et Redis sur `localhost`, c'est-à-dire dans leur propre conteneur.
-- **`DB_NAME` doit correspondre à une base existante.** PostgreSQL ne crée que la base `POSTGRES_DB` du compose, et seulement au tout premier démarrage du volume. Le compose force aussi `PERIMETERS_SOURCE_DB_NAME=cohort_db` pour `backend`.
+- **Ce `.env` est propre à Docker.** `DB_HOST` vaut `postgres` et non `localhost` : il ne fonctionne pas tel quel pour un `runserver` lancé hors Docker.
+- **`DB_NAME`, `DB_USER` et `DB_PASSWORD` ne sont pris en compte par `postgres` qu'au tout premier démarrage du volume `cohort360_pgdata`.** Les modifier ensuite ne crée ni la base ni l'utilisateur : créer la base à la main (`docker exec postgres createdb -U <DB_USER> <DB_NAME>`), ou repartir d'un volume vide avec `docker volume rm cohort360_pgdata` (la base est alors perdue).
 - Dans un conteneur, `localhost` désigne le conteneur lui-même : utiliser les noms de service (`postgres`, `redis`) avec leurs ports **internes** (`5432`, `6379`), pas `localhost:5433`.
 
 Après une modification du `.env`, redémarrer les conteneurs : il n'est lu qu'au démarrage.
@@ -166,38 +184,41 @@ docker compose -f docker-compose.dev.yml down
 
 ## Initialiser la base de données
 
-Une base vide ne suffit pas pour utiliser l'application : il faut **une sauvegarde (backup) d'une base Cohort360**, à demander à l'équipe. Les étapes ci-dessous se font une seule fois, conteneurs démarrés.
+Le développeur crée sa propre base PostgreSQL, vide, avec **les mêmes valeurs que les variables d'environnement du `.env`** : nom de base `DB_NAME`, utilisateur `DB_USER`, mot de passe `DB_PASSWORD`. Django se connecte avec ces valeurs : si la base porte un autre nom ou appartient à un autre utilisateur, les migrations ne s'appliquent pas dessus.
 
-### 1. Restaurer la sauvegarde
+### 1. Créer la base
 
-Restaurer le backup dans la base indiquée par `DB_NAME` (ici `<base>`). Les identifiants sont ceux du `.env`.
+Au premier démarrage du volume `cohort360_pgdata`, le conteneur `postgres` crée automatiquement la base `DB_NAME` et l'utilisateur `DB_USER` / `DB_PASSWORD` à partir du `.env`. Il n'y a rien à faire si le `.env` est rempli avant le premier lancement.
 
-```bash
-# Créer la base si elle n'existe pas encore
-docker exec pg-db createdb -U cohort_dev <base>
-
-# Backup au format SQL (.sql)
-docker exec -i pg-db psql -U cohort_dev -d <base> < /chemin/vers/backup.sql
-
-# Backup au format custom (.dump, créé avec pg_dump -Fc)
-docker exec -i pg-db pg_restore -U cohort_dev -d <base> --no-owner --no-privileges < /chemin/vers/backup.dump
-```
-
-### 2. Créer la table `user`
-
-La table des utilisateurs s'appelle `user`. Vérifier qu'elle existe dans la base restaurée :
+Si le volume existe déjà (créé avec d'autres valeurs), créer la base à la main avec les valeurs du `.env` :
 
 ```bash
-docker exec pg-db psql -U cohort_dev -d <base> -c '\dt "user"'
+# Remplacer <DB_USER> et <DB_NAME> par les valeurs du .env (ex. cohort_dev et cohort_db)
+docker exec postgres createdb -U <DB_USER> <DB_NAME>
 ```
 
-Si elle est absente (`Did not find any relation named "user"`), la créer en appliquant les migrations Django :
+Ou repartir d'un volume vide, qui sera recréé avec les valeurs du `.env` (toutes les données de `postgres` sont perdues) :
+
+```bash
+docker compose -f docker-compose.dev.yml down
+docker volume rm cohort360_pgdata
+docker compose -f docker-compose.dev.yml up
+```
+
+### 2. Appliquer les migrations
+
+Le conteneur `backend` lance `python manage.py migrate` à chaque démarrage : les tables de Cohort360 sont créées directement dans la base `DB_NAME`. Pour les relancer à la main :
 
 ```bash
 docker exec backend python manage.py migrate
 ```
 
-Si `migrate` répond `No migrations to apply` alors que la table manque toujours, c'est que la table `django_migrations` du backup marque déjà les migrations `admin_cohort` comme appliquées : demander à l'équipe un backup qui contient la table `user`.
+Vérifier que la table des utilisateurs (`user`) existe :
+
+```bash
+docker exec postgres psql -U <DB_USER> -d <DB_NAME> -c '\dt "user"'
+# public | user | table | cohort_dev
+```
 
 ### 3. Créer un utilisateur
 
@@ -221,8 +242,8 @@ Avec le Makefile, la même commande se lance depuis la racine du workspace avec 
 ## Vérification
 
 ```bash
-docker ps --format '{{.Names}}\t{{.Status}}\t{{.Ports}}' | grep -E 'backend|celery|daphne|pg-db|redis'
-# 5 conteneurs "Up" ; pg-db et redis "(healthy)"
+docker ps --format '{{.Names}}\t{{.Status}}\t{{.Ports}}' | grep -E 'backend|celery|daphne|postgres|redis'
+# 5 conteneurs "Up" ; postgres et redis "(healthy)"
 
 docker logs backend 2>&1 | grep -E 'Starting development server|Error'
 # Starting development server at http://0.0.0.0:8000/
@@ -243,13 +264,15 @@ docker exec celery python -c "import socket; socket.create_connection(('redis', 
 | Symptôme | Cause | Correctif |
 | --- | --- | --- |
 | `env file .../.env not found` | Le fichier `.env` n'a pas été créé | `cp .local/env.docker.example .env` puis l'adapter |
+| `Conflict. The container name "/postgres" is already in use` | Un autre conteneur nommé `postgres` existe déjà sur la machine (autre projet) | `docker ps -a --filter name=^postgres$` pour l'identifier, puis l'arrêter et le supprimer (`docker rm -f postgres`) ou le renommer (`docker rename postgres <autre-nom>`) |
 | `make: *** No rule to make target 'run-backend'` | `make` lancé depuis `Cohort360-Back-end/` au lieu de la racine du workspace | `cd <workspace>` puis relancer |
 | `Bind for 0.0.0.0:8000 failed: port is already allocated` | Un `runserver` lancé hors Docker (ou un autre service) occupe déjà le port | `ss -ltnp 'sport = :8000'` pour l'identifier et l'arrêter |
 | `ImproperlyConfigured: Set the XXX environment variable` | Variable obligatoire absente du `.env` | Ajouter la variable (ex. `PERIMETER_TYPES`, `DJANGO_SECRET_KEY`), puis redémarrer |
-| `FATAL: database "xxx" does not exist` | `DB_NAME` ne correspond à aucune base de `pg-db` | Aligner `DB_NAME` sur la base existante, ou la créer : `docker exec pg-db createdb -U cohort_dev <nom>` |
-| `relation "user" does not exist` | La table `user` manque dans la base restaurée | Voir [Créer la table `user`](#2-créer-la-table-user) |
-| `password authentication failed` | Le volume a été initialisé avec d'autres identifiants que ceux du `.env` | Aligner le `.env` sur les identifiants d'origine (changer `POSTGRES_*` dans le compose n'a plus d'effet après le premier démarrage) |
-| `Connection refused` vers `localhost:5432` ou `localhost:6379` dans `celery` / `daphne` | `DB_HOST` ou `CELERY_BROKER_URL` absents du `.env` | Ajouter `DB_HOST=postgres`, `PERIMETERS_SOURCE_DB_HOST=postgres`, `CELERY_BROKER_URL=redis://redis:6379/0` |
+| `FATAL: database "xxx" does not exist` | `DB_NAME` ne correspond à aucune base de `postgres` (volume créé avec d'autres valeurs) | Créer la base avec les valeurs du `.env` : voir [Créer la base](#1-créer-la-base) |
+| `relation "user" does not exist` | Les migrations n'ont pas été appliquées sur la base `DB_NAME` | Voir [Appliquer les migrations](#2-appliquer-les-migrations) |
+| `password authentication failed` | Le volume a été initialisé avec d'autres identifiants que ceux du `.env` | Remettre dans le `.env` les identifiants d'origine (modifier `DB_USER` / `DB_PASSWORD` n'a plus d'effet sur `postgres` après le premier démarrage), ou `docker volume rm cohort360_pgdata` pour repartir de zéro |
+| Warning `The "DB_USER" variable is not set`, puis `postgres` s'arrête (`superuser password is not specified`) | `DB_NAME`, `DB_USER` ou `DB_PASSWORD` absent du `.env` | Ajouter les variables (voir le bloc `.env` ci-dessus) |
+| `Connection refused` vers `localhost:5432` ou `localhost:6379` | `DB_HOST`, `DB_PORT` ou `CELERY_BROKER_URL` absents du `.env` | Ajouter `DB_HOST=postgres`, `DB_PORT=5432`, `PERIMETERS_SOURCE_DB_HOST=postgres`, `PERIMETERS_SOURCE_DB_PORT=5432`, `CELERY_BROKER_URL=redis://redis:6379/0` |
 | `Name or service not known` sur `host.docker.internal` dans `celery` / `daphne` | `extra_hosts` n'est déclaré que pour `backend` | Appeler ces services depuis `backend`, ou ajouter `extra_hosts` au service concerné |
 | Une tâche Celery modifiée garde l'ancien comportement | Le worker Celery ne recharge pas le code automatiquement | `make restart-celery` |
 | Une dépendance ajoutée à `pyproject.toml` est introuvable | Le `.venv` vient de l'image, construite avant la modification | Mettre à jour `uv.lock`, reconstruire l'image sans cache, puis relancer |

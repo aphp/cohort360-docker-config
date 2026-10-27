@@ -3,17 +3,17 @@
 services:
   postgres:
     image: postgres:16-alpine
-    container_name: pg-db
+    container_name: postgres
     environment:
-      POSTGRES_USER: cohort_dev
-      POSTGRES_PASSWORD: cohort_dev_pwd
-      POSTGRES_DB: cohort_db_qualif_copy
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
     ports:
       - "5433:5432"
     volumes:
       - cohort360_pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U cohort_dev -d cohort_db"]
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
       interval: 3s
       timeout: 5s
       retries: 15
@@ -50,13 +50,6 @@ services:
     env_file:
       - path: .env
         required: true
-    environment:
-      DB_HOST: postgres
-      DB_PORT: "5432"
-      PERIMETERS_SOURCE_DB_NAME: cohort_db
-      PERIMETERS_SOURCE_DB_HOST: postgres
-      PERIMETERS_SOURCE_DB_PORT: "5432"
-      CELERY_BROKER_URL: redis://redis:6379/0
     depends_on:
       postgres:
         condition: service_healthy

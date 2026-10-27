@@ -17,7 +17,7 @@ Le dépôt contient, pour chaque composant, un `Dockerfile`, un `docker-compose.
 
 ## Utilisation
 
-1. Cloner les dépôts Cohort360 dans un même dossier `<workspace>/`.
+1. Cloner les dépôts Cohort360 dans un même dossier `<workspace>/`.  (liste des URLs à demander à l'équipe)
 2. Copier les fichiers de chaque dossier ci-dessus à la racine du dépôt correspondant, et copier `Makefile` et `cohort360.sh` à la racine de `<workspace>/` :
 
    ```

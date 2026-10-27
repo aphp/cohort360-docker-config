@@ -117,10 +117,10 @@ User.objects.get_or_create(username='SPARK_JOB_SERVER', defaults={'firstname': '
 "
 ```
 
-Ou en SQL, directement dans PostgreSQL (`user` est un mot réservé, d'où les guillemets) :
+Ou en SQL, directement dans PostgreSQL (`user` est un mot réservé, d'où les guillemets ; `<DB_USER>` et `<DB_NAME>` sont les valeurs du `.env` du back-end) :
 
 ```bash
-docker exec -it pg-db psql -U <POSTGRES_USER> -d <POSTGRES_DB> -c "
+docker exec -it postgres psql -U <DB_USER> -d <DB_NAME> -c "
 INSERT INTO \"user\" (username, firstname, lastname, password, onboarding_step, insert_datetime)
 VALUES ('SPARK_JOB_SERVER', 'Query', 'EXECUTOR', NULL, 0, now())
 ON CONFLICT (username) DO NOTHING;"
@@ -129,7 +129,7 @@ ON CONFLICT (username) DO NOTHING;"
 Vérifier :
 
 ```bash
-docker exec -it pg-db psql -U <POSTGRES_USER> -d <POSTGRES_DB> -c "SELECT username, password, delete_datetime FROM \"user\" WHERE username = 'SPARK_JOB_SERVER';"
+docker exec -it postgres psql -U <DB_USER> -d <DB_NAME> -c "SELECT username, password, delete_datetime FROM \"user\" WHERE username = 'SPARK_JOB_SERVER';"
 # 1 ligne, password vide, delete_datetime vide
 ```
 
