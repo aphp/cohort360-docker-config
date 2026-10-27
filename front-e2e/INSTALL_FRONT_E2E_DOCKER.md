@@ -19,7 +19,7 @@ Pour le débogage dans l'IDE, l'écriture de tests et l'analyse détaillée des 
 | --- | --- |
 | Docker Engine + plugin Compose v2 | `docker compose version` |
 | Git et un accès aux dépôts internes | `git --version` |
-| Ports **4444** (Selenium) et **7900** (noVNC) libres | `ss -ltnp 'sport = :4444 or sport = :7900'` (aucune ligne attendue) |
+| Ports **4444** (Selenium) et **7900** (noVNC) libres | `ss -ltnp 'sport = :4444 or sport = :7900'` (aucune ligne attendue ; Linux / WSL, pour macOS et Windows voir le [README](../README.md#vérifier-quun-port-est-libre)) |
 | Option A : back-end et front démarrés (conteneur `front` sur `cohort360-network`) | `docker ps --format '{{.Names}}' \| grep -w front` |
 | Un compte Cohort360 actif avec au minimum `DATA_READ_NOMINATIVE` | — |
 

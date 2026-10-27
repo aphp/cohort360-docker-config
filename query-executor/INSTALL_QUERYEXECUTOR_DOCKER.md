@@ -18,7 +18,7 @@ Résultat attendu dans les deux cas : le QueryExecutor répond sur http://localh
 | Docker Engine + plugin Compose v2 | `docker compose version` |
 | Git et un accès aux dépôts internes | `git --version` |
 | Le back-end démarré (il crée le réseau `cohort360-network`) | `docker network ls \| grep cohort360-network` |
-| Port choisi pour `QUERY_EXECUTOR_LOCAL_PORT` libre (ex. **9804**) | `ss -ltnp 'sport = :9804'` (aucune ligne attendue) |
+| Port choisi pour `QUERY_EXECUTOR_LOCAL_PORT` libre (ex. **9804**) | `ss -ltnp 'sport = :9804'` (aucune ligne attendue ; Linux / WSL, pour macOS et Windows voir le [README](../README.md#vérifier-quun-port-est-libre)) |
 | Accès à la base OMOP (PostgreSQL), à Solr et/ou à l'API FHIR | selon le résolveur utilisé |
 
 ## Organisation du workspace

@@ -17,7 +17,7 @@ Résultat attendu dans les deux cas : le site tourne sur http://127.0.0.1:8001/d
 | --- | --- |
 | Docker Engine + plugin Compose v2 | `docker compose version` |
 | Git et un accès aux dépôts internes | `git --version` |
-| Port **8001** libre sur la machine | `ss -ltnp 'sport = :8001'` (aucune ligne attendue) |
+| Port **8001** libre sur la machine | `ss -ltnp 'sport = :8001'` (aucune ligne attendue ; Linux / WSL, pour macOS et Windows voir le [README](../README.md#vérifier-quun-port-est-libre)) |
 
 ## Organisation du workspace
 
@@ -135,7 +135,7 @@ curl -s -o /dev/null -w '%{http_code}\n' http://127.0.0.1:8001/design-et-produit
 | `Bind for 0.0.0.0:8001 failed: port is already allocated` ou `address already in use` | Un `mkdocs serve` lancé hors Docker (ou un autre service) occupe déjà le 8001 | `ss -ltnp 'sport = :8001'` pour l'identifier, l'arrêter, puis relancer |
 | Les images n'apparaissent pas dans les pages | `selectolax` 1.x casse `mkdocs-glightbox` 0.5.x : les `<img>` sont supprimées du HTML | Vérifier que `requirements.txt` contient `selectolax<1`, puis reconstruire l'image sans cache |
 | `dubious ownership in repository` ou dates de modification absentes | Image construite avant l'ajout de `safe.directory` dans le Dockerfile | Reconstruire l'image sans cache |
-| `public/` appartient à root et ne peut pas être supprimé | Le conteneur tourne en root ; `mkdocs build` crée donc `public/` en root | `sudo rm -rf public` (sans conséquence, le dossier est régénéré) |
+| `public/` appartient à root et ne peut pas être supprimé (Linux / WSL) | Le conteneur tourne en root ; `mkdocs build` crée donc `public/` en root | `sudo rm -rf public` (sans conséquence, le dossier est régénéré) |
 | Le site ne se recharge pas après une modification | Sous Docker Desktop (Mac/Windows), les événements de fichiers du volume arrivent mal | Ajouter `--livereload` à la commande `mkdocs serve`, ou redémarrer le conteneur |
 | Une dépendance ajoutée à `requirements.txt` est introuvable | L'image a été construite avant la modification | Reconstruire l'image sans cache, puis relancer |
 | Encadré « MkDocs 2.0 / ProperDocs » dans les logs | Avertissement d'un plugin, sans effet | Déjà masqué par `DISABLE_MKDOCS_2_WARNING=true` dans le Dockerfile |

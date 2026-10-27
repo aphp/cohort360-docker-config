@@ -53,5 +53,31 @@ Sans Makefile, chaque guide décrit aussi les commandes `docker compose` équiva
 
 ## Prérequis
 
-- Docker Engine + plugin Compose v2
+- Docker Engine + plugin Compose v2 (Docker Desktop sous Windows et macOS)
 - Git avec un accès aux dépôts internes
+- `make` et `bash`, pour l'option A (Makefile et menus `cohort360.sh`) uniquement :
+  - Linux : déjà présents (sinon `sudo apt install make`) ;
+  - macOS : `xcode-select --install` ;
+  - Windows : voir ci-dessous.
+
+### Sous Windows : travailler dans WSL2
+
+Les guides sont écrits pour un shell Linux (`make`, `bash`, `ss`, `sudo`). Sous Windows, travailler dans **WSL2** (distribution Ubuntu) :
+
+1. Installer WSL2 et Ubuntu (`wsl --install` dans PowerShell en administrateur), puis activer l'intégration WSL dans Docker Desktop (*Settings → Resources → WSL integration*).
+2. Dans le terminal Ubuntu : `sudo apt install make git`.
+3. Cloner les dépôts **dans le système de fichiers WSL** (par exemple `~/cohort360/`), pas dans `C:\` (`/mnt/c/...`) : les volumes Docker y sont beaucoup plus rapides et le rechargement à chaud y fonctionne.
+
+Toutes les commandes des guides fonctionnent alors telles quelles.
+
+Sans WSL, seule l'option B (commandes `docker compose` de chaque guide, dans PowerShell) est utilisable.
+
+### Vérifier qu'un port est libre
+
+Les guides utilisent `ss` (Linux / WSL). Équivalents, exemple avec le port 8000 (aucune ligne attendue) :
+
+| Système | Commande |
+| --- | --- |
+| Linux / WSL | `ss -ltnp 'sport = :8000'` |
+| macOS | `lsof -iTCP:8000 -sTCP:LISTEN` |
+| Windows (PowerShell) | `Get-NetTCPConnection -LocalPort 8000 -State Listen` |

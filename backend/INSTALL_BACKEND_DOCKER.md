@@ -17,7 +17,7 @@ Résultat attendu dans les deux cas : l'API Django répond sur http://localhost:
 | --- | --- |
 | Docker Engine + plugin Compose v2 | `docker compose version` |
 | Git et un accès aux dépôts internes | `git --version` |
-| Ports **8000**, **8005**, **5433** et **6380** libres sur la machine | `ss -ltnp | grep -E ':(8000|8005|5433|6380) '` (aucune ligne attendue) |
+| Ports **8000**, **8005**, **5433** et **6380** libres sur la machine | `ss -ltnp | grep -E ':(8000|8005|5433|6380) '` (aucune ligne attendue ; Linux / WSL, pour macOS et Windows voir le [README](../README.md#vérifier-quun-port-est-libre)) |
 
 ## Organisation du workspace
 
