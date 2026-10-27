@@ -50,8 +50,8 @@ git clone <URL SSH du dépôt> Cohort360-FrontEnd
 
 - **Image** : `node:22` + `npm install` des dépendances de `package.json`.
 - **Contenu** : le dépôt est **monté en volume** sur `/app`, donc Vite recharge le front à chaque modification. Les `node_modules` restent ceux de l'image (volume anonyme `/app/node_modules`) : ceux de la machine ne sont pas utilisés.
-- **Commande** : `npm start -- --host 0.0.0.0` (serveur de dev Vite, port 9808 dans le conteneur).
-- **Ports** : le port `FRONT_LOCAL_PORT` de la machine pointe sur le port 9808 du conteneur.
+- **Commande** : `npm start -- --host 0.0.0.0` (serveur de dev Vite, port 3000 dans le conteneur, fixé par `server.port` dans `vite.config.ts`).
+- **Ports** : le port `FRONT_LOCAL_PORT` de la machine (9808 par défaut) pointe sur le port 3000 du conteneur. On ouvre donc http://localhost:9808 dans le navigateur, alors que les logs de Vite affichent `localhost:3000` (son port à l'intérieur du conteneur).
 - **Réseau** : le conteneur `front` rejoint le réseau externe `cohort360-network`, créé par le `docker-compose.dev.yml` du back-end. Il peut ainsi joindre `backend` et `daphne` par leur nom de service.
 - **Appels API** : le navigateur appelle des URLs relatives (`/api/back`, `/api/fhir`, ...) ; le proxy de Vite (`vite-dev-proxy.ts`) les redirige vers les services. Pas besoin de Nginx en dev.
 
@@ -158,11 +158,11 @@ Passer par cette URL et non par un autre serveur : c'est le serveur Vite qui rou
 
 ```bash
 docker ps --format '{{.Names}}\t{{.Ports}}' | grep -w front
-# front  0.0.0.0:9808->9808/tcp
+# front  0.0.0.0:9808->3000/tcp
 
 docker logs front 2>&1 | grep -E 'dev proxy|Local|Network'
 # [cohort360] dev proxy (N règles) → back http://backend:8000
-# ➜  Local:   http://localhost:9808/
+# ➜  Local:   http://localhost:3000/   (port du conteneur : depuis la machine, c'est 9808)
 
 curl -s -o /dev/null -w '%{http_code}\n' http://localhost:9808/
 # 200
@@ -180,6 +180,7 @@ docker exec front curl -s -o /dev/null -w '%{http_code}\n' http://backend:8000/
 | `env file .../.env not found` | Le fichier `.env` n'a pas été créé | `cp .env.dev-proxy.example .env` puis l'adapter |
 | `Error while fetching config` dans la console du navigateur | `public/config.dev.json` absent : le front tourne sur la configuration par défaut | Demander le fichier à l'équipe et le placer dans `public/` (voir [Fichier `public/config.dev.json`](#fichier-publicconfigdevjson)), puis recharger la page |
 | `Bind for 0.0.0.0:9808 failed: port is already allocated` | Un `npm start` lancé hors Docker (ou un autre service) occupe déjà le port | `ss -ltnp 'sport = :9808'` pour l'identifier, l'arrêter, ou changer `FRONT_LOCAL_PORT` |
+| http://localhost:3000 ne répond pas alors que les logs affichent `Local: http://localhost:3000/` | 3000 est le port de Vite dans le conteneur, pas celui de la machine | Ouvrir http://localhost:9808 (ou le port de `FRONT_LOCAL_PORT`) |
 | `make: *** No rule to make target 'run-front'` | `make` lancé depuis `Cohort360-FrontEnd/` au lieu de la racine du workspace | `cd <workspace>` puis relancer |
 | Warning `Aucun VITE_DEV_PROXY_*` dans les logs, appels `/api/back` en 404 | Aucune variable de proxy renseignée dans le `.env` | Renseigner `VITE_DEV_PROXY_BACK` (et les autres), puis redémarrer |
 | `ECONNREFUSED 127.0.0.1:8000` dans les logs Vite | Cible du proxy en `localhost` : dans le conteneur, c'est le conteneur `front` | Utiliser `http://backend:8000` |
