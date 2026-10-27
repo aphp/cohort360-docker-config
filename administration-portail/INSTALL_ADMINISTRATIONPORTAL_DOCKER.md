@@ -34,8 +34,8 @@ Les commandes de ce guide supposent l'arborescence suivante, où `<workspace>` e
 │   ├── docker-compose.dev.yml
 │   ├── .dockerignore
 │   ├── .env                          # à créer (non versionné)
-│   ├── vite.config.ts
-│   └── vite-dev-proxy.ts
+│   ├── vite.config.ts                # copié depuis le kit (remplace celui du dépôt)
+│   └── vite-dev-proxy.ts             # copié depuis le kit
 └── ...
 ```
 
@@ -167,6 +167,7 @@ docker exec administration_portal curl -s -o /dev/null -w '%{http_code}\n' http:
 | `invalid published port` / `"LOCAL_PORT" variable is not set` | `LOCAL_PORT` absent du `.env` | Ajouter `LOCAL_PORT=3000` dans le `.env` |
 | `Bind for 0.0.0.0:3000 failed: port is already allocated` | Un `npm start` lancé hors Docker (ou un autre service) occupe déjà le port | `ss -ltnp 'sport = :3000'` pour l'identifier, l'arrêter, ou changer `LOCAL_PORT` |
 | `make: *** No rule to make target 'run-administrationportal'` | `make` lancé depuis `Cohort360-AdministrationPortal/` au lieu de la racine du workspace | `cd <workspace>` puis relancer |
+| `/api/back/...` renvoie la page HTML du portail, aucune ligne `dev proxy` dans les logs | `vite-dev-proxy.ts` et `vite.config.ts` du kit n'ont pas été copiés | Copier les deux fichiers (voir [Fichiers Docker du dépôt](#fichiers-docker-du-dépôt)), puis redémarrer le conteneur |
 | Warning `Aucun VITE_DEV_PROXY_BACK/BACK_URL` dans les logs, appels `/api/back` en 404 | Aucune cible de proxy renseignée dans le `.env` | Renseigner `VITE_DEV_PROXY_BACK`, puis redémarrer |
 | `ECONNREFUSED 127.0.0.1:8000` dans les logs Vite | Cible du proxy en `localhost` : dans le conteneur, c'est le conteneur du portail | Utiliser `http://backend:8000` |
 | `getaddrinfo ENOTFOUND backend` | Le conteneur `backend` est arrêté ou pas sur `cohort360-network` | `docker ps`, puis `docker network inspect cohort360-network` |
@@ -176,10 +177,17 @@ docker exec administration_portal curl -s -o /dev/null -w '%{http_code}\n' http:
 
 ## Fichiers Docker du dépôt
 
-À la racine de `Cohort360-AdministrationPortal/` :
+Copier à la racine de `Cohort360-AdministrationPortal/` les fichiers du dossier `administration-portail/` du kit :
 
 - `Dockerfile`
 - `docker-compose.dev.yml`
-- `.dockerignore`
+- `vite-dev-proxy.ts` : proxy de dev qui redirige `/api/back` vers Django (nouveau fichier)
+- `vite.config.ts` : branche le proxy sur le serveur Vite (**remplace le fichier du dépôt**)
+
+Le `.dockerignore` est déjà fourni par le dépôt.
+
+Sans `vite-dev-proxy.ts` et ce `vite.config.ts`, il n'y a pas de proxy : les appels à `/api/back` renvoient la page HTML du portail au lieu de joindre Django.
+
+**Ne pas committer `vite.config.ts`.** C'est un fichier suivi par git : après la copie, `git status` le montre modifié. Ne pas l'inclure dans un commit (pas de `git add .`). Pour revenir à la version du dépôt : `git checkout vite.config.ts`. Après un `git pull` qui modifie `vite.config.ts`, vérifier que la copie du kit est toujours à jour avant de la recoller.
 
 Dans le conteneur, Vite doit écouter sur `0.0.0.0` (option `--host 0.0.0.0`) et non sur `127.0.0.1` : sinon il n'est pas joignable depuis la machine malgré le mapping de port.
