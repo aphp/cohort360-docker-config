@@ -69,7 +69,7 @@ Puis vérifier au minimum ces variables :
 | Variable | Rôle | Exemple en Docker |
 | --- | --- | --- |
 | `FRONT_LOCAL_PORT` | Port de la machine pour accéder au front | `9808` |
-| `VITE_CONFIG_URL` | URL du fichier de configuration chargé au démarrage | `/config.dev.json` (fichier de `public/`) |
+| `VITE_CONFIG_URL` | URL du fichier de configuration chargé au démarrage | `/config.dev.json` (fichier de `public/`, voir ci-dessous) |
 | `VITE_DEV_PROXY_BACK` | Cible de `/api/back` (Django) | `http://backend:8000` |
 | `VITE_DEV_PROXY_BACK_WS` | Cible de `/api/back/ws` (WebSocket, Daphne) | `http://daphne:8005` |
 | `VITE_DEV_PROXY_FHIR` | Cible de `/api/fhir` (réécrit en `/fhir`) | URL de l'API FHIR |
@@ -80,6 +80,14 @@ Puis vérifier au minimum ces variables :
 | `VITE_DEV_PROXY_FHIR_AUTH_METHOD` | `OIDC` ajoute l'en-tête `authorizationMethod: OIDC` sur FHIR | (vide) |
 
 Une variable `VITE_DEV_PROXY_*` vide désactive la route correspondante.
+
+### Fichier `public/config.dev.json`
+
+Le fichier indiqué par `VITE_CONFIG_URL` n'est pas dans le dépôt : `public/config.*.json` est ignoré par git. **Le demander à l'équipe**, puis le placer dans `Cohort360-FrontEnd/public/config.dev.json`.
+
+Au démarrage, le front télécharge ce fichier et le fusionne avec la configuration par défaut de `src/config.tsx`. S'il est absent, le front démarre quand même, mais avec la configuration par défaut (erreur `Error while fetching config` dans la console du navigateur).
+
+> **À mettre à jour** : préciser où trouver `config.dev.json` (fichier fourni par le kit, dépôt, ou contact dans l'équipe).
 
 Dans le conteneur, `localhost` désigne le conteneur `front` lui-même : les cibles du proxy doivent utiliser les noms de service Docker (`backend`, `daphne`) et leurs ports internes, pas `localhost:8000`.
 
@@ -170,6 +178,7 @@ docker exec front curl -s -o /dev/null -w '%{http_code}\n' http://backend:8000/
 | --- | --- | --- |
 | `network cohort360-network declared as external, but could not be found` | Le back-end n'a jamais été démarré, le réseau n'existe pas | Démarrer le back-end d'abord (`make run-backend`), ou `docker network create cohort360-network` |
 | `env file .../.env not found` | Le fichier `.env` n'a pas été créé | `cp .env.dev-proxy.example .env` puis l'adapter |
+| `Error while fetching config` dans la console du navigateur | `public/config.dev.json` absent : le front tourne sur la configuration par défaut | Demander le fichier à l'équipe et le placer dans `public/` (voir [Fichier `public/config.dev.json`](#fichier-publicconfigdevjson)), puis recharger la page |
 | `Bind for 0.0.0.0:9808 failed: port is already allocated` | Un `npm start` lancé hors Docker (ou un autre service) occupe déjà le port | `ss -ltnp 'sport = :9808'` pour l'identifier, l'arrêter, ou changer `FRONT_LOCAL_PORT` |
 | `make: *** No rule to make target 'run-front'` | `make` lancé depuis `Cohort360-FrontEnd/` au lieu de la racine du workspace | `cd <workspace>` puis relancer |
 | Warning `Aucun VITE_DEV_PROXY_*` dans les logs, appels `/api/back` en 404 | Aucune variable de proxy renseignée dans le `.env` | Renseigner `VITE_DEV_PROXY_BACK` (et les autres), puis redémarrer |
