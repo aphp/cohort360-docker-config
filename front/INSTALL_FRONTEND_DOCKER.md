@@ -35,7 +35,7 @@ Les commandes de ce guide supposent l'arborescence suivante, où `<workspace>` e
 │   ├── .env                 # à créer (non versionné)
 │   ├── .env.dev-proxy.example
 │   ├── vite.config.ts
-│   └── vite-dev-proxy.ts
+│   └── vite-dev-proxy.ts    # copié depuis le kit (remplace celui du dépôt)
 └── ...
 ```
 
@@ -71,7 +71,7 @@ Puis vérifier au minimum ces variables :
 | `FRONT_LOCAL_PORT` | Port de la machine pour accéder au front | `9808` |
 | `VITE_CONFIG_URL` | URL du fichier de configuration chargé au démarrage | `/config.dev.json` (fichier de `public/`, voir ci-dessous) |
 | `VITE_DEV_PROXY_BACK` | Cible de `/api/back` (Django) | `http://backend:8000` |
-| `VITE_DEV_PROXY_BACK_WS` | Cible de `/api/back/ws` (WebSocket, Daphne) | `http://daphne:8005` |
+| `VITE_DEV_PROXY_BACK_WS` | Cible de `/api/back/ws` (WebSocket, Daphne) ; vide = même valeur que BACK, et les WebSockets ne fonctionnent pas (`runserver` ne les gère pas). Nécessite le `vite-dev-proxy.ts` du kit | `http://daphne:8005` |
 | `VITE_DEV_PROXY_FHIR` | Cible de `/api/fhir` (réécrit en `/fhir`) | URL de l'API FHIR |
 | `VITE_DEV_PROXY_REQUEST` | Cible de `/api/request` ; vide = même valeur que FHIR, `off` = désactivé | (vide) |
 | `VITE_DEV_PROXY_DATAMODEL` | Cible de `/api/datamodel` | URL du service datamodel |
@@ -185,15 +185,18 @@ docker exec front curl -s -o /dev/null -w '%{http_code}\n' http://backend:8000/
 | `ECONNREFUSED 127.0.0.1:8000` dans les logs Vite | Cible du proxy en `localhost` : dans le conteneur, c'est le conteneur `front` | Utiliser `http://backend:8000` |
 | `getaddrinfo ENOTFOUND backend` | Le conteneur `backend` est arrêté ou pas sur `cohort360-network` | `docker ps`, puis `docker network inspect cohort360-network` |
 | Erreurs 401 sur `/api/back` | Le back est joint, mais l'authentification échoue | Problème côté back/authentification, pas côté réseau |
+| Le statut des cohortes et les comptages ne se mettent pas à jour sans recharger la page | Les WebSockets partent vers `runserver` au lieu de Daphne | Copier le `vite-dev-proxy.ts` du kit, mettre `VITE_DEV_PROXY_BACK_WS=http://daphne:8005` dans le `.env`, puis redémarrer le conteneur. Vérifier dans l'onglet Réseau du navigateur que `/api/back/ws/` répond `101 Switching Protocols` |
 | Une dépendance ajoutée à `package.json` est introuvable | Les `node_modules` viennent de l'image, construite avant la modification | Reconstruire l'image sans cache, puis relancer |
 | Le front ne se recharge pas après une modification | Sous Docker Desktop (Mac/Windows), les événements de fichiers du volume arrivent mal | Redémarrer le conteneur |
 
 ## Fichiers Docker du dépôt
 
-À la racine de `Cohort360-FrontEnd/`, coller les trois fichiers docker.
+Copier à la racine de `Cohort360-FrontEnd/` les fichiers du dossier `front/` du kit :
 
 - `Dockerfile`
 - `docker-compose.dev.yml`
-- `.dockerignore`
+- `vite-dev-proxy.ts` : version du dépôt (`develop`) qui ajoute `VITE_DEV_PROXY_BACK_WS`, pour envoyer les WebSockets vers Daphne (**remplace le fichier du dépôt**)
+
+**Ne pas committer `vite-dev-proxy.ts`.** C'est un fichier suivi par git : après la copie, `git status` le montre modifié. Ne pas l'inclure dans un commit (pas de `git add .`). Pour revenir à la version du dépôt : `git checkout vite-dev-proxy.ts`. Après un `git pull` qui modifie `vite-dev-proxy.ts`, vérifier que la copie du kit est toujours à jour avant de la recoller.
 
 Dans le conteneur, Vite doit écouter sur `0.0.0.0` (option `--host 0.0.0.0`) et non sur `127.0.0.1` : sinon il n'est pas joignable depuis la machine malgré le mapping de port.
