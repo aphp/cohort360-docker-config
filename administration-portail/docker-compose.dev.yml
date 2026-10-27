@@ -1,6 +1,7 @@
 services:
   administration_portal:
-    build: .
+    context: .
+    target: build
 
     container_name: administration_portal
 
