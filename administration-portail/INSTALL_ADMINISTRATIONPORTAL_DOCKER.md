@@ -16,7 +16,7 @@ Résultat attendu dans les deux cas : le portail tourne sur http://localhost:300
 | Outil | Vérifier |
 | --- | --- |
 | Docker Engine + plugin Compose v2 | `docker compose version` |
-| Git et un accès aux dépôts internes | `git --version` |
+| Git et un accès à l'organisation GitHub `aphp` (voir [Accès à demander](../README.md#accès-à-demander)) | `git --version` |
 | Le back-end démarré (il crée le réseau `cohort360-network`) | `docker network ls \| grep cohort360-network` |
 | Port **3000** (ou `LOCAL_PORT`) libre sur la machine | `ss -ltnp 'sport = :3000'` (aucune ligne attendue ; Linux / WSL, pour macOS et Windows voir le [README](../README.md#vérifier-quun-port-est-libre)) |
 
@@ -43,7 +43,7 @@ Cloner le dépôt dans le workspace :
 
 ```bash
 cd <workspace>
-git clone <URL SSH du dépôt> Cohort360-AdministrationPortal
+git clone git@github.com:aphp/Cohort360-AdministrationPortal.git Cohort360-AdministrationPortal
 ```
 
 ## Principe

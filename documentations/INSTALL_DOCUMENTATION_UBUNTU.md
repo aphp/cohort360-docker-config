@@ -15,7 +15,7 @@ Il faut Git, un accès aux dépôts internes et **uv** pour installer Python 3.1
 | Outil | Pourquoi | Vérifier |
 | --- | --- | --- |
 | Git | Cloner le dépôt ; le plugin `git-revision-date-localized` lit aussi l'historique Git | `git --version` |
-| un accès aux dépôts internes | Le dépôt est cloné en SSH | `— |
+| un accès aux dépôts internes | Cloner le dépôt (URL à demander à l'équipe) | — |
 | uv | Installe Python 3.12 et les dépendances sans toucher au Python du système | `uv --version` |
 | Accès internet | Téléchargement des paquets et du script `tablesort` (CDN unpkg) | — |
 
@@ -33,10 +33,10 @@ En télétravail, le cookie NSC_TMAS doit être à jour pour joindre dépôt int
 
 Trois étapes : cloner, créer un environnement virtuel Python 3.12, installer les dépendances.
 
-1. Cloner le dépôt (URL à demander à l'équipe) :
+1. Cloner le dépôt (dépôt dépôt interne, URL à demander à l'équipe) :
 
     ```bash
-    git clone <URL SSH du dépôt> documentation
+    git clone <URL du dépôt, à demander à l'équipe> documentation
     cd documentation
     ```
 
@@ -104,7 +104,7 @@ Première installation :
 ```bash
 sudo apt install -y git curl
 curl -LsSf https://astral.sh/uv/install.sh | sh
-git clone <URL SSH du dépôt> documentation
+git clone <URL du dépôt, à demander à l'équipe> documentation
 cd documentation
 uv venv venv --python 3.12
 uv pip install --python venv -r requirements.txt

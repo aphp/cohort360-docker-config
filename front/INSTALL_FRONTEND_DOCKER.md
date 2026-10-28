@@ -16,7 +16,7 @@ Résultat attendu dans les deux cas : le front tourne sur http://localhost:9808 
 | Outil | Vérifier |
 | --- | --- |
 | Docker Engine + plugin Compose v2 | `docker compose version` |
-| Git et un accès aux dépôts internes | `git --version` |
+| Git et un accès à l'organisation GitHub `aphp` (voir [Accès à demander](../README.md#accès-à-demander)) | `git --version` |
 | Le back-end démarré (il crée le réseau `cohort360-network`) | `docker network ls \| grep cohort360-network` |
 | Port **9808** libre sur la machine | `ss -ltnp 'sport = :9808'` (aucune ligne attendue ; Linux / WSL, pour macOS et Windows voir le [README](../README.md#vérifier-quun-port-est-libre)) |
 
@@ -43,7 +43,7 @@ Cloner le dépôt dans le workspace :
 
 ```bash
 cd <workspace>
-git clone <URL SSH du dépôt> Cohort360-FrontEnd
+git clone git@github.com:aphp/Cohort360-FrontEnd.git Cohort360-FrontEnd
 ```
 
 ## Principe
@@ -153,6 +153,25 @@ docker compose -f docker-compose.dev.yml down
 Ouvrir http://localhost:9808 (ou le port défini dans `FRONT_LOCAL_PORT`).
 
 Passer par cette URL et non par un autre serveur : c'est le serveur Vite qui route les URLs relatives `/api/...` vers les services.
+
+## Se connecter
+
+En local, on se connecte avec un identifiant et un mot de passe (JWT), sans passer par l'authentification OIDC. Le formulaire est masqué par défaut ; deux façons de l'afficher, sans toucher à `src/config.tsx` :
+
+- **Par la configuration** : dans `public/config.dev.json`, mettre `displayJwtLogin` à `true` dans la partie `system` :
+
+  ```json
+  {
+    "system": {
+      "displayJwtLogin": true
+    }
+  }
+  ```
+
+  Recharger ensuite la page.
+- **Au clavier**, sans rien modifier : sur la page de connexion, taper la séquence ↑ ↑ ↓ ↓ ← → ← → `b` `a` Entrée (valeur `codeDisplayJWT` de la configuration). Le formulaire s'affiche.
+
+Utiliser ensuite l'utilisateur créé avec `create_user_admin` (voir [Créer un utilisateur](../backend/INSTALL_BACKEND_DOCKER.md#3-créer-un-utilisateur) dans le guide du back-end).
 
 ## Vérification
 

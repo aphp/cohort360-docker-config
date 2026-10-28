@@ -17,7 +17,17 @@ Le dépôt contient, pour chaque composant, un `Dockerfile`, un `docker-compose.
 
 ## Utilisation
 
-1. Cloner les dépôts Cohort360 dans un même dossier `<workspace>/`.  (liste des URLs à demander à l'équipe)
+1. Cloner les dépôts Cohort360 dans un même dossier `<workspace>/` :
+
+   | Dépôt | Hébergement | URL de clonage |
+   | --- | --- | --- |
+   | `Cohort360-Back-end` | GitHub `aphp` | `git@github.com:aphp/Cohort360-Back-end.git` |
+   | `Cohort360-FrontEnd` | GitHub `aphp` | `git@github.com:aphp/Cohort360-FrontEnd.git` |
+   | `Cohort360-QueryExecutor` | GitHub `aphp` | `git@github.com:aphp/Cohort360-QueryExecutor.git` |
+   | `Cohort360-AdministrationPortal` | GitHub `aphp` | `git@github.com:aphp/Cohort360-AdministrationPortal.git` |
+   | `documentation` | dépôts internes | à demander à l'équipe |
+   | `front-e2e` | dépôts internes | à demander à l'équipe |
+
 2. Copier les fichiers de chaque dossier ci-dessus à la racine du dépôt correspondant, et copier `Makefile` et `cohort360.sh` à la racine de `<workspace>/` :
 
    ```
@@ -54,7 +64,7 @@ Sans Makefile, chaque guide décrit aussi les commandes `docker compose` équiva
 ## Prérequis
 
 - Docker Engine + plugin Compose v2 (Docker Desktop sous Windows et macOS)
-- Git avec un accès aux dépôts internes
+- Git, et les accès listés dans [Accès à demander](#accès-à-demander)
 - `make` et `bash`, pour l'option A (Makefile et menus `cohort360.sh`) uniquement :
   - Linux : déjà présents (sinon `sudo apt install make`) ;
   - macOS : `xcode-select --install` ;
@@ -81,3 +91,35 @@ Les guides utilisent `ss` (Linux / WSL). Équivalents, exemple avec le port 8000
 | Linux / WSL | `ss -ltnp 'sport = :8000'` |
 | macOS | `lsof -iTCP:8000 -sTCP:LISTEN` |
 | Windows (PowerShell) | `Get-NetTCPConnection -LocalPort 8000 -State Listen` |
+
+## Accès à demander
+
+À demander avant de commencer :
+
+| Accès | Pour quoi |
+| --- | --- |
+| Organisation GitHub `aphp` | Cloner et pousser sur `Cohort360-Back-end`, `Cohort360-FrontEnd`, `Cohort360-QueryExecutor` et `Cohort360-AdministrationPortal`, ouvrir des PR |
+| un accès aux dépôts internes | Dépôts `documentation`, `front-e2e` et starter-pack ; variables CI/CD de `front-e2e` pour les tests e2e |
+| VPN et cookie Netscaler `NSC_TMAS` | Joindre dépôts internes en télétravail : le cookie doit être à jour (voir la page wiki « christmas-token » du projet gestion-de-projet) |
+| Comptes applicatifs | `<à compléter>` |
+
+> **À mettre à jour** : compléter la liste des comptes applicatifs et à qui les demander.
+
+## Services externes
+
+Le kit lance le back-end, le front, le portail, la documentation et, si besoin, le QueryExecutor. Les autres briques ne sont pas lancées en local : chaque composant les appelle via son `.env`.
+
+| Brique | Utilisée par | Variables | Environnement à viser |
+| --- | --- | --- | --- |
+| FHIR | back, front | `FHIR_URL` (back), `VITE_DEV_PROXY_FHIR` (front) | `<à compléter>` |
+| Keycloak / OIDC | back, front, portail | `OIDC_*` (back), `VITE_OIDC_*` (portail) | `<à compléter>` |
+| QueryExecutor | back | `QUERY_EXECUTOR_URL` | local (voir [son guide](query-executor/INSTALL_QUERYEXECUTOR_DOCKER.md), nécessite OMOP et Solr) ou `<à compléter>` |
+| Datamodel | front | `VITE_DEV_PROXY_DATAMODEL` | `<à compléter>` |
+
+Depuis un conteneur, un service lancé sur la machine se joint via `host.docker.internal`, pas `localhost` (voir le guide du back).
+
+> **À mettre à jour** : indiquer l'environnement (URL) à viser pour chaque brique.
+
+## Onboarding
+
+Ce dépôt ne couvre que l'environnement Docker local. Pour l'architecture, la branche de travail (`develop`), le flux PR et tickets et les conventions de commit : `<à compléter : lien vers la page wiki d'onboarding>`.

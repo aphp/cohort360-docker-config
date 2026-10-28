@@ -18,7 +18,7 @@ Pour le débogage dans l'IDE, l'écriture de tests et l'analyse détaillée des 
 | Outil | Vérifier |
 | --- | --- |
 | Docker Engine + plugin Compose v2 | `docker compose version` |
-| Git et un accès aux dépôts internes | `git --version` |
+| Git et un accès aux dépôts internes (voir [Accès à demander](../README.md#accès-à-demander)) | `git --version` |
 | Ports **4444** (Selenium) et **7900** (noVNC) libres | `ss -ltnp 'sport = :4444 or sport = :7900'` (aucune ligne attendue ; Linux / WSL, pour macOS et Windows voir le [README](../README.md#vérifier-quun-port-est-libre)) |
 | Option A : back-end et front démarrés (conteneur `front` sur `cohort360-network`) | `docker ps --format '{{.Names}}' \| grep -w front` |
 | Un compte Cohort360 actif avec au minimum `DATA_READ_NOMINATIVE` | — |
@@ -42,11 +42,11 @@ Les commandes de ce guide supposent l'arborescence suivante, où `<workspace>` e
     └── src/test/resources/       # features Gherkin
 ```
 
-Cloner le dépôt dans le workspace (URL à demander à l'équipe) :
+Cloner le dépôt dans le workspace (dépôt dépôt interne, URL à demander à l'équipe) :
 
 ```bash
 cd <workspace>
-git clone <URL SSH du dépôt> front-e2e
+git clone <URL du dépôt, à demander à l'équipe> front-e2e
 ```
 
 ## Principe

@@ -16,7 +16,7 @@ Résultat attendu dans les deux cas : l'API Django répond sur http://localhost:
 | Outil | Vérifier |
 | --- | --- |
 | Docker Engine + plugin Compose v2 | `docker compose version` |
-| Git et un accès aux dépôts internes | `git --version` |
+| Git et un accès à l'organisation GitHub `aphp` (voir [Accès à demander](../README.md#accès-à-demander)) | `git --version` |
 | Ports **8000**, **8005**, **5433** et **6380** libres sur la machine | `ss -ltnp | grep -E ':(8000|8005|5433|6380) '` (aucune ligne attendue ; Linux / WSL, pour macOS et Windows voir le [README](../README.md#vérifier-quun-port-est-libre)) |
 
 ## Organisation du workspace
@@ -44,7 +44,7 @@ Cloner le dépôt dans le workspace :
 
 ```bash
 cd <workspace>
-git clone <URL SSH du dépôt> Cohort360-Back-end
+git clone git@github.com:aphp/Cohort360-Back-end.git Cohort360-Back-end
 ```
 
 ## Principe

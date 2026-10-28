@@ -16,7 +16,7 @@ Résultat attendu dans les deux cas : le site tourne sur http://127.0.0.1:8001/d
 | Outil | Vérifier |
 | --- | --- |
 | Docker Engine + plugin Compose v2 | `docker compose version` |
-| Git et un accès aux dépôts internes | `git --version` |
+| Git et un accès aux dépôts internes (voir [Accès à demander](../README.md#accès-à-demander)) | `git --version` |
 | Port **8001** libre sur la machine | `ss -ltnp 'sport = :8001'` (aucune ligne attendue ; Linux / WSL, pour macOS et Windows voir le [README](../README.md#vérifier-quun-port-est-libre)) |
 
 ## Organisation du workspace
@@ -38,11 +38,11 @@ Les commandes de ce guide supposent l'arborescence suivante, où `<workspace>` e
     └── requirements.txt
 ```
 
-Cloner le dépôt dans le workspace (URL à demander à l'équipe) :
+Cloner le dépôt dans le workspace (dépôt dépôt interne, URL à demander à l'équipe) :
 
 ```bash
 cd <workspace>
-git clone <URL SSH du dépôt> documentation
+git clone <URL du dépôt, à demander à l'équipe> documentation
 ```
 
 ## Principe
