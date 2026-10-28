@@ -171,7 +171,7 @@ En local, on se connecte avec un identifiant et un mot de passe (JWT), sans pass
   Recharger ensuite la page.
 - **Au clavier**, sans rien modifier : sur la page de connexion, taper la séquence ↑ ↑ ↓ ↓ ← → ← → `b` `a` Entrée (valeur `codeDisplayJWT` de la configuration). Le formulaire s'affiche.
 
-Utiliser ensuite l'utilisateur créé avec `create_user_admin` (voir [Créer un utilisateur](../backend/INSTALL_BACKEND_DOCKER.md#3-créer-un-utilisateur) dans le guide du back-end).
+Utiliser ensuite l'utilisateur créé avec `create_user_admin` (voir [Créer un utilisateur](../backend/INSTALL_BACKEND_DOCKER.md#3-créer-un-utilisateur) dans le guide du back-end). Il doit avoir un accès sur un périmètre avec le rôle `LOCAL TESTER ROLE` : `create_user_admin` le crée automatiquement, et le portail d'administration permet de le donner à un autre utilisateur (voir [Vérifier l'accès de l'utilisateur](../backend/INSTALL_BACKEND_DOCKER.md#4-vérifier-laccès-de-lutilisateur)).
 
 ## Vérification
 

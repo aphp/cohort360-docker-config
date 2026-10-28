@@ -232,6 +232,27 @@ Remplacer `USERNAME` et `PASSWORD` par les valeurs voulues.
 
 Avec le Makefile, la même commande se lance depuis la racine du workspace avec `docker exec` (il n'y a pas de cible dédiée).
 
+### 4. Vérifier l'accès de l'utilisateur
+
+Pour utiliser Cohort360, l'utilisateur doit avoir un **accès sur un périmètre avec le rôle `LOCAL TESTER ROLE`**. Les droits d'un utilisateur viennent uniquement de ses accès : sans accès, il n'a aucun droit dans l'application.
+
+`create_user_admin` le crée automatiquement :
+
+- le rôle `LOCAL TESTER ROLE` (tous les droits, dont l'administration) ;
+- le périmètre racine `8312002244` (« Top Perimeter »), s'il n'existe pas ;
+- l'accès de l'utilisateur sur ce périmètre avec ce rôle.
+
+Vérifier que l'accès existe :
+
+```bash
+docker exec backend python manage.py shell -c "from accesses.models import Access; print(list(Access.objects.filter(profile__user__username='USERNAME').values_list('perimeter__name', 'role__name')))"
+# [('Top Perimeter', 'LOCAL TESTER ROLE')]
+```
+
+Si la liste est vide, relancer `create_user_admin` avec le même `USERNAME` : la commande met à jour l'utilisateur existant et recrée son accès.
+
+**Donner l'accès à un autre utilisateur** : passer par le portail d'administration (voir [son guide](../administration-portail/INSTALL_ADMINISTRATIONPORTAL_DOCKER.md)). Se connecter au portail avec l'utilisateur créé par `create_user_admin`, ouvrir la fiche de l'utilisateur à autoriser, puis lui ajouter un accès sur le périmètre voulu avec le rôle `LOCAL TESTER ROLE`.
+
 ## Accéder au back-end
 
 - API : http://localhost:8000
