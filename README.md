@@ -25,8 +25,8 @@ Le dépôt contient, pour chaque composant, un `Dockerfile`, un `docker-compose.
    | `Cohort360-FrontEnd` | GitHub `aphp` | `git@github.com:aphp/Cohort360-FrontEnd.git` |
    | `Cohort360-QueryExecutor` | GitHub `aphp` | `git@github.com:aphp/Cohort360-QueryExecutor.git` |
    | `Cohort360-AdministrationPortal` | GitHub `aphp` | `git@github.com:aphp/Cohort360-AdministrationPortal.git` |
-   | `documentation` | dépôts internes | à demander à l'équipe |
-   | `front-e2e` | dépôts internes | à demander à l'équipe |
+   | `documentation` | - | à demander à l'équipe |
+   | `front-e2e` | - | à demander à l'équipe |
 
 2. Copier les fichiers de chaque dossier ci-dessus à la racine du dépôt correspondant, et copier `Makefile` et `cohort360.sh` à la racine de `<workspace>/` :
 
@@ -99,11 +99,7 @@ Les guides utilisent `ss` (Linux / WSL). Équivalents, exemple avec le port 8000
 | Accès | Pour quoi |
 | --- | --- |
 | Organisation GitHub `aphp` | Cloner et pousser sur `Cohort360-Back-end`, `Cohort360-FrontEnd`, `Cohort360-QueryExecutor` et `Cohort360-AdministrationPortal`, ouvrir des PR |
-| un accès aux dépôts internes | Dépôts `documentation`, `front-e2e` et starter-pack ; variables CI/CD de `front-e2e` pour les tests e2e |
-| VPN et cookie Netscaler `NSC_TMAS` | Joindre dépôts internes en télétravail : le cookie doit être à jour (voir la page wiki « christmas-token » du projet gestion-de-projet) |
-| Comptes applicatifs | `<à compléter>` |
-
-> **À mettre à jour** : compléter la liste des comptes applicatifs et à qui les demander.
+| Accès aux dépôts internes | Dépôts `documentation` et `front-e2e`, identifiants des tests e2e : à demander à l'équipe |
 
 ## Services externes
 
@@ -118,7 +114,6 @@ Le kit lance le back-end, le front, le portail, la documentation et, si besoin, 
 
 Depuis un conteneur, un service lancé sur la machine se joint via `host.docker.internal`, pas `localhost` (voir le guide du back).
 
-> **À mettre à jour** : indiquer l'environnement (URL) à viser pour chaque brique.
 
 ## Onboarding
 

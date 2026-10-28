@@ -42,7 +42,7 @@ Les commandes de ce guide supposent l'arborescence suivante, où `<workspace>` e
     └── src/test/resources/       # features Gherkin
 ```
 
-Cloner le dépôt dans le workspace (dépôt dépôt interne, URL à demander à l'équipe) :
+Cloner le dépôt dans le workspace (URL à demander à l'équipe) :
 
 ```bash
 cd <workspace>
@@ -68,7 +68,7 @@ cd <workspace>/front-e2e
 cp doc/prise-en-main/run.env.example run.env
 ```
 
-Les valeurs se trouvent dans les variables CI/CD du projet dépôt interne `front-e2e` (**Settings → CI/CD → Variables**).
+Les valeurs (identifiants de test) sont à demander à l'équipe.
 
 | Variable | Rôle |
 | --- | --- |
@@ -173,7 +173,7 @@ ls -1t artifacts/e2e/ | head -1
 | `make: *** No rule to make target 'e2e'` | `make` lancé depuis `front-e2e/` | `cd <workspace>` puis relancer |
 | Option A : `Error: No such object: front`, erreur `nil pointer` ou URL `http://:3000/` | Le conteneur `front` n'est pas démarré ou pas sur `cohort360-network` | Démarrer le front (`make run-front`), puis relancer |
 | `Bind for 0.0.0.0:4444 failed: port is already allocated` | Un autre Selenium tourne déjà | `docker ps \| grep selenium`, l'arrêter (`make e2e-down`) |
-| La page s'ouvre mais rien n'est saisi, connexion en échec | `run.env` incomplet (login/mot de passe vides) | Renseigner les variables depuis la CI |
+| La page s'ouvre mais rien n'est saisi, connexion en échec | `run.env` incomplet (login/mot de passe vides) | Renseigner les variables (valeurs à demander à l'équipe) |
 | Échec de connexion avec mot de passe correct | Mot de passe non encodé en base64 | `echo -n '<mot de passe>' \| base64` et reporter la valeur |
 | Boucle de redirection à la connexion | Cookie `NSC_TMAS` vide sur l'intranet, ou expiré hors intranet | Intranet : commenter `AUTH_PORTAL_COOKIE` ; à distance : récupérer un cookie à jour |
 | Features `cohort360/` en échec faute de données (cohorte, favori, filtre) | Initialisation non faite sur cet environnement | `sh scripts/run-init.sh` |

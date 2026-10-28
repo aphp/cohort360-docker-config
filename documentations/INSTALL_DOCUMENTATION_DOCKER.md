@@ -38,7 +38,7 @@ Les commandes de ce guide supposent l'arborescence suivante, où `<workspace>` e
     └── requirements.txt
 ```
 
-Cloner le dépôt dans le workspace (dépôt dépôt interne, URL à demander à l'équipe) :
+Cloner le dépôt dans le workspace (URL à demander à l'équipe) :
 
 ```bash
 cd <workspace>

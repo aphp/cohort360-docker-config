@@ -10,12 +10,12 @@ Résultat attendu : le site tourne sur http://127.0.0.1:8001/design-et-produit/i
 
 ## Prérequis
 
-Il faut Git, un accès aux dépôts internes et **uv** pour installer Python 3.12, la version utilisée par la CI.
+Il faut Git, un accès au dépôt (à demander à l'équipe) et **uv** pour installer Python 3.12, la version utilisée par la CI.
 
 | Outil | Pourquoi | Vérifier |
 | --- | --- | --- |
 | Git | Cloner le dépôt ; le plugin `git-revision-date-localized` lit aussi l'historique Git | `git --version` |
-| un accès aux dépôts internes | Cloner le dépôt (URL à demander à l'équipe) | — |
+| Accès au dépôt | Cloner le dépôt (URL à demander à l'équipe) | — |
 | uv | Installe Python 3.12 et les dépendances sans toucher au Python du système | `uv --version` |
 | Accès internet | Téléchargement des paquets et du script `tablesort` (CDN unpkg) | — |
 
@@ -27,13 +27,13 @@ sudo apt install -y git curl
 curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
 
-En télétravail, le cookie NSC_TMAS doit être à jour pour joindre dépôt interne (voir la page wiki « christmas-token » du projet gestion-de-projet).
+En télétravail, l'accès réseau aux dépôts internes est à demander à l'équipe.
 
 ## Installation
 
 Trois étapes : cloner, créer un environnement virtuel Python 3.12, installer les dépendances.
 
-1. Cloner le dépôt (dépôt dépôt interne, URL à demander à l'équipe) :
+1. Cloner le dépôt (URL à demander à l'équipe) :
 
     ```bash
     git clone <URL du dépôt, à demander à l'équipe> documentation
